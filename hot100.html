@@ -56,9 +56,10 @@ hr{border:0;border-top:1px solid var(--line);margin:34px 0}
   <aside class="side">
     <div class="eyebrow">ALGORITHM EXPEDITION</div>
     <h1>Hot 100 题解笔记</h1>
-    <div class="meta">14 个专题 · 85 道题目</div>
+    <div class="meta">15 个专题 · 88 道题目</div>
     <input id="search" type="search" placeholder="搜索题目或知识点" aria-label="搜索题目或知识点">
-    <nav aria-label="专题目录"><a href="#1-哈希">1 哈希</a>
+    <nav aria-label="专题目录"><a href="#0-常用模板-自定义排序与堆">0 常用模板：自定义排序与堆</a>
+<a href="#1-哈希">1 哈希</a>
 <a href="#2-双指针">2 双指针</a>
 <a href="#3-滑动窗口">3 滑动窗口</a>
 <a href="#4-子串">4 子串</a>
@@ -72,7 +73,8 @@ hr{border:0;border-top:1px solid var(--line);margin:34px 0}
 <a href="#15-动态规划">15 动态规划</a>
 <a href="#16-多维动态规划">16 多维动态规划</a>
 <a href="#30-非-hot-100">30 非 HOT 100</a></nav>
-    <div class="mobile-nav"><select id="sectionSelect" aria-label="跳转专题"><option value="">跳转到专题</option><option value="#1-哈希">1 哈希</option>
+    <div class="mobile-nav"><select id="sectionSelect" aria-label="跳转专题"><option value="">跳转到专题</option><option value="#0-常用模板-自定义排序与堆">0 常用模板：自定义排序与堆</option>
+<option value="#1-哈希">1 哈希</option>
 <option value="#2-双指针">2 双指针</option>
 <option value="#3-滑动窗口">3 滑动窗口</option>
 <option value="#4-子串">4 子串</option>
@@ -94,7 +96,156 @@ hr{border:0;border-top:1px solid var(--line);margin:34px 0}
       <p>从哈希、双指针到动态规划，集中整理 Hot 100 高频题目的思路、代码与易错点。</p>
     </header>
     <div class="empty" id="empty">没有找到匹配内容，请换个关键词。</div>
-    <article id="content"><h1 id="1-哈希">1 哈希<a class="anchor" href="#1-哈希" aria-label="链接到本节">#</a></h1>
+    <article id="content"><h1 id="0-常用模板-自定义排序与堆">0 常用模板：自定义排序与堆<a class="anchor" href="#0-常用模板-自定义排序与堆" aria-label="链接到本节">#</a></h1>
+<h2 id="go-数组与切片的自定义排序">Go 数组与切片的自定义排序<a class="anchor" href="#go-数组与切片的自定义排序" aria-label="链接到本节">#</a></h2>
+<p>Go 可以使用 <code>sort.Slice</code> 对切片原地排序。比较函数返回 <code>true</code>，表示下标 <code>i</code> 的元素应该排在下标 <code>j</code> 的元素前面。比较必须使用严格关系 <code>&lt;</code> 或 <code>&gt;</code>，不能使用 <code>&lt;=</code> 或 <code>&gt;=</code>。</p>
+<pre data-language="go"><code>package main
+
+import (
+    &quot;fmt&quot;
+    &quot;sort&quot;
+)
+
+func main() {
+    nums := []int{3, 1, 5, 2, 4}
+
+    // 升序
+    sort.Slice(nums, func(i, j int) bool {
+        return nums[i] &lt; nums[j]
+    })
+    fmt.Println(nums) // [1 2 3 4 5]
+
+    // 降序
+    sort.Slice(nums, func(i, j int) bool {
+        return nums[i] &gt; nums[j]
+    })
+    fmt.Println(nums) // [5 4 3 2 1]
+}</code></pre>
+<p>固定长度数组要先通过 <code>[:]</code> 取得切片，再交给 <code>sort.Slice</code>：</p>
+<pre data-language="go"><code>arr := [5]int{3, 1, 5, 2, 4}
+
+sort.Slice(arr[:], func(i, j int) bool {
+    return arr[i] &gt; arr[j]
+})</code></pre>
+<p>结构体可以依次比较多个字段。下面先按 <code>First</code> 降序，<code>First</code> 相同时再按 <code>Second</code> 降序：</p>
+<pre data-language="go"><code>type Pair struct {
+    First  int
+    Second int
+}
+
+pairs := []Pair{
+    {First: 2, Second: 5},
+    {First: 1, Second: 8},
+    {First: 2, Second: 3},
+}
+
+sort.Slice(pairs, func(i, j int) bool {
+    if pairs[i].First != pairs[j].First {
+        return pairs[i].First &gt; pairs[j].First
+    }
+    return pairs[i].Second &gt; pairs[j].Second
+})</code></pre>
+<h2 id="c-数组与-vector-的自定义排序">C++ 数组与 vector 的自定义排序<a class="anchor" href="#c-数组与-vector-的自定义排序" aria-label="链接到本节">#</a></h2>
+<p><code>std::sort(first, last, comp)</code> 中，如果 <code>comp(a, b)</code> 返回 <code>true</code>，表示 <code>a</code> 应排在 <code>b</code> 前面。因此，普通排序里写 <code>a &gt; b</code> 表示降序。</p>
+<pre data-language="cpp"><code>#include &lt;algorithm&gt;
+#include &lt;functional&gt;
+#include &lt;iterator&gt;
+#include &lt;utility&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int nums[] = {3, 1, 5, 2, 4};
+
+// 原生数组升序
+sort(begin(nums), end(nums));
+
+// 原生数组降序
+sort(begin(nums), end(nums), greater&lt;int&gt;());
+
+vector&lt;int&gt; values = {3, 1, 5, 2, 4};
+
+// vector 自定义降序
+sort(values.begin(), values.end(), [](int a, int b) {
+    return a &gt; b;
+});</code></pre>
+<p><code>pair&lt;int, int&gt;</code> 先按 <code>first</code> 降序，值相同时按 <code>second</code> 降序：</p>
+<pre data-language="cpp"><code>vector&lt;pair&lt;int, int&gt;&gt; pairs = {
+    {2, 5}, {1, 8}, {2, 3}
+};
+
+sort(pairs.begin(), pairs.end(),
+     [](const pair&lt;int, int&gt;&amp; a, const pair&lt;int, int&gt;&amp; b) {
+         if (a.first != b.first) {
+             return a.first &gt; b.first;
+         }
+         return a.second &gt; b.second;
+     });</code></pre>
+<p>先按 <code>second</code> 降序，值相同时按 <code>first</code> 降序：</p>
+<pre data-language="cpp"><code>sort(pairs.begin(), pairs.end(),
+     [](const pair&lt;int, int&gt;&amp; a, const pair&lt;int, int&gt;&amp; b) {
+         if (a.second != b.second) {
+             return a.second &gt; b.second;
+         }
+         return a.first &gt; b.first;
+     });</code></pre>
+<p><code>pair</code> 默认按字典序比较，所以 <code>greater&lt;pair&lt;int, int&gt;&gt;()</code> 也可以实现“先按 <code>first</code> 降序，<code>first</code> 相同时按 <code>second</code> 降序”：</p>
+<pre data-language="cpp"><code>sort(pairs.begin(), pairs.end(), greater&lt;pair&lt;int, int&gt;&gt;());</code></pre>
+<h2 id="c-priority-queue-的自定义排序">C++ priority_queue 的自定义排序<a class="anchor" href="#c-priority-queue-的自定义排序" aria-label="链接到本节">#</a></h2>
+<p>堆不是把所有元素完整排好序，而是始终保证 <code>top()</code> 是当前优先级最高的元素。连续执行 <code>top()</code> 和 <code>pop()</code>，才能依次取出元素。</p>
+<pre data-language="cpp"><code>#include &lt;functional&gt;
+#include &lt;queue&gt;
+#include &lt;utility&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+// 大顶堆：最大值先出
+priority_queue&lt;int&gt; maxHeap;
+
+// 小顶堆：最小值先出
+priority_queue&lt;int, vector&lt;int&gt;, greater&lt;int&gt;&gt; minHeap;</code></pre>
+<p><code>priority_queue</code> 的比较器与 <code>sort</code> 看起来是反的：如果 <code>comp(a, b)</code> 返回 <code>true</code>，表示 <code>a</code> 的优先级比 <code>b</code> 低，<code>a</code> 应该下沉。因此，要让较大的值先出堆，比较器里使用 <code>&lt;</code>。</p>
+<p>对于 <code>pair&lt;int, int&gt;</code>，按 <code>first</code> 降序出堆；<code>first</code> 相同时按 <code>second</code> 降序：</p>
+<pre data-language="cpp"><code>using PII = pair&lt;int, int&gt;;
+
+struct FirstDesc {
+    bool operator()(const PII&amp; a, const PII&amp; b) const {
+        if (a.first != b.first) {
+            return a.first &lt; b.first;
+        }
+        return a.second &lt; b.second;
+    }
+};
+
+priority_queue&lt;PII, vector&lt;PII&gt;, FirstDesc&gt; firstHeap;
+
+firstHeap.push({2, 5});
+firstHeap.push({1, 8});
+firstHeap.push({2, 3});
+
+// 弹出顺序：(2, 5)、(2, 3)、(1, 8)</code></pre>
+<p>按 <code>second</code> 降序出堆；<code>second</code> 相同时按 <code>first</code> 降序：</p>
+<pre data-language="cpp"><code>using PII = pair&lt;int, int&gt;;
+
+struct SecondDesc {
+    bool operator()(const PII&amp; a, const PII&amp; b) const {
+        if (a.second != b.second) {
+            return a.second &lt; b.second;
+        }
+        return a.first &lt; b.first;
+    }
+};
+
+priority_queue&lt;PII, vector&lt;PII&gt;, SecondDesc&gt; secondHeap;
+
+secondHeap.push({2, 5});
+secondHeap.push({1, 8});
+secondHeap.push({3, 5});
+
+// 弹出顺序：(1, 8)、(3, 5)、(2, 5)</code></pre>
+<p>如果就是“按 <code>first</code> 降序，<code>first</code> 相同时按 <code>second</code> 降序”，可以直接使用默认大顶堆：</p>
+<pre data-language="cpp"><code>priority_queue&lt;pair&lt;int, int&gt;&gt; heap;</code></pre>
+<p>最简记忆：普通 <code>sort</code> 降序通常写 <code>a &gt; b</code>；<code>priority_queue</code> 要让较大的元素先出，比较器通常写 <code>a &lt; b</code>。</p>
+<h1 id="1-哈希">1 哈希<a class="anchor" href="#1-哈希" aria-label="链接到本节">#</a></h1>
 <h2 id="1-两数之和-easy">1. 两数之和 - Easy<a class="anchor" href="#1-两数之和-easy" aria-label="链接到本节">#</a></h2>
 <p><strong>题目：</strong>给定一个整数数组 <code>nums</code> 和一个整数目标值 <code>target</code>，请你在该数组中找出 <strong>和为目标值</strong> <code>*target*</code> 的那 <strong>两个</strong> 整数，并<strong>返回它们的数组下标</strong>。</p>
 <p><strong>思路：</strong>这道题本身如果通过暴力遍历的话也是很容易解决的，时间复杂度在 O($n^2$)；由于哈希查找的时间复杂度为 <strong>O(1)</strong>，所以可以利用哈希容器 <strong>map</strong> 降低时间复杂度；使用哈希表存储， <strong>key存储数组值、value存储下标</strong>；遍历数组 nums，i 为当前下标，每个值都判断map中是否存在 key == target-nums[i] 的值；如果存在，则找到了两个值，如果不存在，则将当前的 (nums[i] , i) 存入 map 中，继续遍历直到找到为止。</p>
@@ -121,7 +272,7 @@ hr{border:0;border-top:1px solid var(--line);margin:34px 0}
     for _, str := range strs {
         s := []byte(str)
         sort.Slice(s, func (i, j int) bool {
-            return s[i] &lt;= s[j]
+            return s[i] &lt; s[j]
         })
         sortedStr := string(s) 
         mp[sortedStr] = append(mp[sortedStr], str)
@@ -134,7 +285,7 @@ hr{border:0;border-top:1px solid var(--line);margin:34px 0}
 }</code></pre>
 <p><strong>注意：</strong></p>
 <ol>
-<li>对字符slice <strong>s</strong> 做排序应该用：sort.Slice(s, func (i, j int) bool { return s[i] ≤ s[j] }) </li>
+<li>对字符 slice <strong>s</strong> 做升序排序应该用：<code>sort.Slice(s, func(i, j int) bool { return s[i] &lt; s[j] })</code>。比较函数必须使用严格关系，不能使用 <code>&lt;=</code>。</li>
 </ol>
 <h2 id="128-最长连续序列">128. 最长连续序列<a class="anchor" href="#128-最长连续序列" aria-label="链接到本节">#</a></h2>
 <p><strong>题目：</strong>给定一个未排序的整数数组 <code>nums</code> ，找出数字连续的最长序列（不要求序列元素在原数组中连续）的长度。请你设计并实现时间复杂度为 <code>O(n)</code>的算法解决此问题。</p>
